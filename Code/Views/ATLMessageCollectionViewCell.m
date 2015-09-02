@@ -413,11 +413,16 @@ CGFloat const ATLAvatarImageTailPadding = 7.0f;
     if (shouldDisplayAvatarItem) {
         if ([constraints containsObject:self.bubbleWithAvatarLeadConstraint]) return;
         [self.contentView removeConstraint:self.bubbleWithoutAvatarLeadConstraint];
-        [self.contentView addConstraint:self.bubbleWithAvatarLeadConstraint];
+        if (self.bubbleWithAvatarLeadConstraint != nil) {
+            [self.contentView addConstraint:self.bubbleWithAvatarLeadConstraint];
+        }
     } else {
         if ([constraints containsObject:self.bubbleWithoutAvatarLeadConstraint]) return;
         [self.contentView removeConstraint:self.bubbleWithAvatarLeadConstraint];
-        [self.contentView addConstraint:self.bubbleWithoutAvatarLeadConstraint];
+
+        if (self.bubbleWithoutAvatarLeadConstraint != nil) {
+            [self.contentView addConstraint:self.bubbleWithoutAvatarLeadConstraint];
+        }
     }
     [self setNeedsUpdateConstraints];
 }
