@@ -43,9 +43,9 @@
     _backgroundGradientLayer.startPoint = CGPointZero;
     _backgroundGradientLayer.endPoint = CGPointMake(0, 1);
     _backgroundGradientLayer.colors = @[
-                                        (id)[UIColor colorWithWhite:1.0 alpha:0.0].CGColor,
-                                        (id)[UIColor colorWithWhite:1.0 alpha:0.75].CGColor,
-                                        (id)[UIColor colorWithWhite:1.0 alpha:1.0].CGColor
+                                        (id)[UIColor colorWithWhite:0.0 alpha:0.0].CGColor,
+                                        (id)[UIColor colorWithWhite:0.0 alpha:0.75].CGColor,
+                                        (id)[UIColor colorWithWhite:0.0 alpha:1.0].CGColor
                                         ];
     [self.view.layer addSublayer:_backgroundGradientLayer];
     
