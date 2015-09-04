@@ -95,9 +95,11 @@ static NSString *const ATLAddressBarParticipantAttributeName = @"ATLAddressBarPa
 {
     if (!participant) return;
 
-    NSMutableOrderedSet *participants = [NSMutableOrderedSet orderedSetWithOrderedSet:self.selectedParticipants];
-    [participants addObject:participant];
-    self.selectedParticipants = participants;
+    if ([self delegateAllowsAddingParticipant:participant]) {
+        NSMutableOrderedSet *participants = [NSMutableOrderedSet orderedSetWithOrderedSet:self.selectedParticipants];
+        [participants addObject:participant];
+        self.selectedParticipants = participants;
+    }
 }
 
 - (void)setSelectedParticipants:(NSOrderedSet *)selectedParticipants
@@ -122,7 +124,8 @@ static NSString *const ATLAddressBarParticipantAttributeName = @"ATLAddressBarPa
     NSMutableOrderedSet *removedParticipants = [NSMutableOrderedSet orderedSetWithOrderedSet:existingParticipants];
     if (selectedParticipants) [removedParticipants minusOrderedSet:selectedParticipants];
     [self notifyDelegateOfRemovedParticipants:removedParticipants];
-    
+
+
     NSMutableOrderedSet *addedParticipants = [NSMutableOrderedSet orderedSetWithOrderedSet:selectedParticipants];
     if (existingParticipants) [addedParticipants minusOrderedSet:existingParticipants];
     [self notifyDelegateOfSelectedParticipants:addedParticipants];
@@ -332,6 +335,15 @@ static NSString *const ATLAddressBarParticipantAttributeName = @"ATLAddressBarPa
 }
 
 #pragma mark - Delegate Implementation
+
+- (BOOL)delegateAllowsAddingParticipant:(id<ATLParticipant>)participant {
+    if ([self.delegate respondsToSelector:@selector(addressBarViewController:shouldAddParticipant:)]) {
+        return [self.delegate addressBarViewController:self shouldAddParticipant:participant];
+    } else {
+        return YES;
+    }
+}
+
 
 - (void)notifyDelegateOfSelectedParticipants:(NSMutableOrderedSet *)selectedParticipants
 {

@@ -93,6 +93,8 @@
  */
 - (NSString*)addressBarViewController:(ATLAddressBarViewController *)addressBarViewController titleForHeaderInSection:(NSInteger)section;
 
+- (BOOL)addressBarViewController:(ATLAddressBarViewController *)addressBarViewController shouldAddParticipant:(id<ATLParticipant>)participant;
+
 @end
 
 /**
