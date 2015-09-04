@@ -80,7 +80,18 @@
  @param completion The completion block to be called upon search completion.
  @discussion Search should be performed across each `ATLParticipant` object's fullName property.
  */
-- (void)addressBarViewController:(ATLAddressBarViewController *)addressBarViewController searchForParticipantsMatchingText:(NSString *)searchText completion:(void (^)(NSArray *participants))completion;
+- (void)addressBarViewController:(ATLAddressBarViewController *)addressBarViewController searchForParticipantsMatchingText:(NSString *)searchText section:(NSInteger)section completion:(void (^)(NSArray *participants))completion;
+
+/**
+ @abstract Asks the data source for a number of sections to show
+ */
+- (NSInteger)numberOfSectionsInAddressBarViewController:(ATLAddressBarViewController *)addressBarViewController;
+
+
+/**
+ @abstract Asks the Data source for the name of a section
+ */
+- (NSString*)addressBarViewController:(ATLAddressBarViewController *)addressBarViewController titleForHeaderInSection:(NSInteger)section;
 
 @end
 

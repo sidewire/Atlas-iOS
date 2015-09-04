@@ -26,7 +26,7 @@
 @interface ATLAddressBarViewController () <UITextViewDelegate, UITableViewDataSource, UITableViewDelegate>
 
 @property (nonatomic) UITableView *tableView;
-@property (nonatomic) NSArray *participants;
+@property (nonatomic) NSMutableArray *participantSections;
 @property (nonatomic, getter=isDisabled) BOOL disabled;
 
 @end
@@ -139,18 +139,21 @@ static NSString *const ATLAddressBarParticipantAttributeName = @"ATLAddressBarPa
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
-    return 1;
+
+    return [self sectionCount];
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    return self.participants.count;
+    NSArray *participants = self.participantSections[section];
+    return participants.count;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:ATLMParticpantCellIdentifier];
-    id<ATLParticipant> participant = self.participants[indexPath.row];
+    NSArray *participants = self.participantSections[indexPath.section];
+    id<ATLParticipant> participant = participants[indexPath.row];
     cell.textLabel.text = participant.fullName;
     cell.textLabel.font = ATLMediumFont(16);
     cell.textLabel.textColor = ATLBlueColor();
@@ -159,8 +162,19 @@ static NSString *const ATLAddressBarParticipantAttributeName = @"ATLAddressBarPa
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    id<ATLParticipant> participant = self.participants[indexPath.row];
+    NSArray *participants = self.participantSections[indexPath.section];
+    id<ATLParticipant> participant = participants[indexPath.row];
     [self selectParticipant:participant];
+}
+
+- (NSString*)tableView:(UITableView*)tableView titleForHeaderInSection:(NSInteger)section {
+
+    if ([self.delegate respondsToSelector:@selector(addressBarViewController:titleForHeaderInSection:)]) {
+        return [self.delegate addressBarViewController:self titleForHeaderInSection:section];
+    }
+    else {
+        return nil;
+    }
 }
 
 #pragma mark - UIScrollViewDelegate
@@ -243,6 +257,7 @@ static NSString *const ATLAddressBarParticipantAttributeName = @"ATLAddressBarPa
     // If no text, reset search bar
     if (searchText.length == 0) {
         [self searchEnded];
+        [self resetParticipantSections];
     } else {
         if (self.tableView.isHidden) {
             self.tableView.hidden = NO;
@@ -250,14 +265,24 @@ static NSString *const ATLAddressBarParticipantAttributeName = @"ATLAddressBarPa
                 [self.delegate addressBarViewControllerDidBeginSearching:self];
             }
         }
-        if ([self.delegate respondsToSelector:@selector(addressBarViewController:searchForParticipantsMatchingText:completion:)]) {
-            [self.delegate addressBarViewController:self searchForParticipantsMatchingText:searchText completion:^(NSArray *participants) {
-                if (![enteredText isEqualToString:textView.text]) return;
-                self.tableView.hidden = NO;
-                self.participants = [self filteredParticipants:participants];
-                [self.tableView reloadData];
-                [self.tableView setContentOffset:CGPointZero animated:NO];
-            }];
+        if ([self.delegate respondsToSelector:@selector(addressBarViewController:searchForParticipantsMatchingText:section:completion:)]) {
+            NSInteger sectionNumber = 0;
+            NSInteger sectionCount = [self sectionCount];
+            [self resetParticipantSections];
+
+            while (sectionNumber < sectionCount) {
+                [self.participantSections addObject:[NSArray array]];
+
+                [self.delegate addressBarViewController:self searchForParticipantsMatchingText:searchText section:sectionNumber completion:^(NSArray *participants) {
+                    if (![enteredText isEqualToString:textView.text]) return;
+                    if (participants == nil) return;
+                    self.tableView.hidden = NO;
+                    [self.participantSections setObject:[self filteredParticipants:participants] atIndexedSubscript:sectionNumber];
+                    [self.tableView reloadData];
+                    [self.tableView setContentOffset:CGPointZero animated:NO];
+                }];
+                sectionNumber++;
+            }
         }
     }
 }
@@ -349,6 +374,26 @@ static NSString *const ATLAddressBarParticipantAttributeName = @"ATLAddressBarPa
 
 #pragma mark - Helpers
 
+- (NSInteger)sectionCount {
+    if ([self.delegate respondsToSelector:@selector(numberOfSectionsInAddressBarViewController:)]) {
+        return [self.delegate numberOfSectionsInAddressBarViewController:self];
+    } else {
+        return 1;
+    }
+}
+
+- (void)resetParticipantSections {
+    NSInteger sectionIndex = 0;
+    NSInteger sectionCount = [self sectionCount];
+    NSMutableArray *sectionArray = [NSMutableArray new];
+
+    while (sectionIndex < sectionCount) {
+        [sectionArray addObject:[NSArray new]];
+        sectionIndex++;
+    }
+    self.participantSections = sectionArray;
+}
+
 - (void)sizeAddressBarView
 {
     // We layout addressBarTextView as it drives the address bar size.
@@ -381,7 +426,7 @@ static NSString *const ATLAddressBarParticipantAttributeName = @"ATLAddressBarPa
 {
     if (self.tableView.isHidden) return;
     [self notifyDelegateOfSearchEnd];
-    self.participants = nil;
+    [self resetParticipantSections];
     self.tableView.hidden = YES;
     [self.tableView reloadData];
 }
