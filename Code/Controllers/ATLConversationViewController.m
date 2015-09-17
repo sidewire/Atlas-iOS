@@ -181,7 +181,7 @@ static NSInteger const ATLPhotoActionSheet = 1000;
         [self cacheMediaAttachments];
     }
     self.collectionView.delegate = nil;
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [self atl_removeNotifications];
 }
 
 - (void)cacheMediaAttachments
@@ -1322,6 +1322,13 @@ static NSInteger const ATLPhotoActionSheet = 1000;
     
     // Application State Notifications
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleApplicationWillEnterForeground:) name:UIApplicationWillEnterForegroundNotification object:nil];
+}
+
+- (void)atl_removeNotifications {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:LYRConversationDidReceiveTypingIndicatorNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:LYRClientObjectsDidChangeNotification object:nil];
+
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillEnterForegroundNotification object:nil];
 }
 
 @end
