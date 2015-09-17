@@ -419,7 +419,6 @@ CGFloat const ATLAvatarImageTailPadding = 7.0f;
     } else {
         if ([constraints containsObject:self.bubbleWithoutAvatarLeadConstraint]) return;
         [self.contentView removeConstraint:self.bubbleWithAvatarLeadConstraint];
-
         if (self.bubbleWithoutAvatarLeadConstraint != nil) {
             [self.contentView addConstraint:self.bubbleWithoutAvatarLeadConstraint];
         }
