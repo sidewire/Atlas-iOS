@@ -118,6 +118,9 @@
  */
 @property (nonatomic) ATLAddressBarView *addressBarView;
 
+
+@property (nonatomic, assign) BOOL addContactsButtonEnabled;
+
 ///------------------------------------
 // @name Managing Participant Selection
 ///------------------------------------

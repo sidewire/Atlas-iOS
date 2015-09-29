@@ -49,6 +49,7 @@ static NSString *const ATLAddressBarParticipantAttributeName = @"ATLAddressBarPa
     [super viewDidLoad];
     self.view.accessibilityLabel = ATLAddressBarAccessibilityLabel;
     self.view.translatesAutoresizingMaskIntoConstraints = NO;
+    self.addContactsButtonEnabled = YES;
     
     self.addressBarView = [[ATLAddressBarView alloc] init];
     self.addressBarView.translatesAutoresizingMaskIntoConstraints = NO;
@@ -194,7 +195,9 @@ static NSString *const ATLAddressBarParticipantAttributeName = @"ATLAddressBarPa
 
 - (BOOL)textViewShouldBeginEditing:(UITextView *)textView
 {
-    self.addressBarView.addContactsButton.hidden = NO;
+    if (self.addContactsButtonEnabled == YES) {
+        self.addressBarView.addContactsButton.hidden = NO;
+    }
     return YES;
 }
 
